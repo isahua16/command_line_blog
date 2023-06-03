@@ -12,7 +12,8 @@ def get_user_id():
         cursor.close()
         conn.close()
         if(len(results) == 1):
-            return results[0]
+            # Result is a list of tuples and we want to return an integer
+            return results[0][0]
         else:
             return None
     except:
@@ -24,7 +25,7 @@ def create_post(client_id):
         post_content = input("Enter your post's content: ")
         conn = mariadb.connect(**dbcreds.conn_params)
         cursor = conn.cursor()
-        cursor.execute('CALL select_client(?,?,?)', [client_id, post_title, post_content])
+        cursor.execute('CALL create_post(?,?,?)', [client_id, post_title, post_content])
         cursor.close()
         conn.close()
         print("Post successfully added")
@@ -47,22 +48,27 @@ def get_all_posts():
         print("Something went wrong")
 
 def program_init():
+    # Store id in a variable
     client_id = get_user_id()
+    # Check if the client id returned none
     if(client_id == None):
         print("Log in failed")
         return
     print("Welcome to the command line blog.")
     while(True):
         print("What would you like to do?\nInsert a new post: 1\nRead all posts: 2\nQuit: 3")
+        # Ask the user for their choice and convert to int
         user_select = int(input())
         if(user_select == 1):
+            # Pass the client id as an argument.
             create_post(client_id)
         elif(user_select == 2):
             get_all_posts()
         elif(user_select == 3):
+            print("Goodbye")
             return
         else:
             print("Invalid option.")
 
-
+program_init()
 
